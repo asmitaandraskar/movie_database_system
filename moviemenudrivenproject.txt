@@ -1,0 +1,92 @@
+import mysql.connector
+
+# Connect to the MySQL database
+mydb = mysql.connector.connect(
+  host="localhost",
+  user="root",
+  password="root",
+  database="moviedb"
+)
+
+# Create a cursor object to execute SQL queries
+mycursor = mydb.cursor()
+
+# Define a function to display the main menu
+def display_menu():
+    print("===== MOVIE DATABASE SYSTEM =====")
+    print("1. Add movie")
+    print("2. Search movie")
+    print("3. Update movie")
+    print("4. Delete movie")
+    print("5. Display all movies")
+    print("0. Exit")
+
+# Define a function to add a new movie to the database
+def add_movie():
+    title = input("Enter movie title: ")
+    year = input("Enter movie year: ")
+    genre = input("Enter movie genre: ")
+    rating = input("Enter movie rating: ")
+    sql = "INSERT INTO movies (title, year, genre, rating) VALUES (%s, %s, %s, %s)"
+    val = (title, year, genre, rating)
+    mycursor.execute(sql, val)
+    mydb.commit()
+    print(mycursor.rowcount, "record inserted.")
+
+# Define a function to search for a movie in the database
+def search_movie():
+    title = input("Enter movie title to search: ")
+    sql = "SELECT * FROM movies WHERE title = %s"
+    val = (title,)
+    mycursor.execute(sql, val)
+    result = mycursor.fetchone()
+    if result:
+        print(result)
+    else:
+        print("No movie found with that title.")
+
+# Define a function to update a movie in the database
+def update_movie():
+    title = input("Enter movie title to update: ")
+    field = input("Enter field to update (title, year, genre, rating): ")
+    new_value = input("Enter new value: ")
+    sql = "UPDATE movies SET {} = %s WHERE title = %s".format(field)
+    val = (new_value, title)
+    mycursor.execute(sql, val)
+    mydb.commit()
+    print(mycursor.rowcount, "record(s) affected.")
+
+# Define a function to delete a movie from the database
+def delete_movie():
+    title = input("Enter movie title to delete: ")
+    sql = "DELETE FROM movies WHERE title = %s"
+    val = (title,)
+    mycursor.execute(sql, val)
+    mydb.commit()
+    print(mycursor.rowcount, "record(s) deleted.")
+
+# Define a function to display all movies in the database
+def display_movies():
+    mycursor.execute("SELECT * FROM movies")
+    result = mycursor.fetchall()
+    for movie in result:
+        print(movie)
+
+# Main program loop
+while True:
+    display_menu()
+    choice = input("Enter your choice: ")
+    if choice == "1":
+        add_movie()
+    elif choice == "2":
+        search_movie()
+    elif choice == "3":
+        update_movie()
+    elif choice == "4":
+        delete_movie()
+    elif choice == "5":
+        display_movies()
+    elif choice == "0":
+        break
+    else:
+        print("Invalid choice. Please try again.")
